@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["plectrum", "plectrum-derive"]
+members = [ "plectrum", "plectrum-derive", "examples/simple"]
 
 [workspace.package]
 version = "0.1.0"

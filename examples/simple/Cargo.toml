@@ -1,0 +1,8 @@
+[package]
+name = "simple"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+plectrum = { version = "0.1.0", path = "../../plectrum" }
+plectrum-derive = { version = "0.1.0", path = "../../plectrum-derive" }
