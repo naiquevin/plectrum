@@ -1,0 +1,7 @@
+[package]
+name = "plectrum"
+version.workspace = true
+edition.workspace = true
+
+[dev-dependencies]
+tokio = { version = "1.33.0", features = ["full"] }
