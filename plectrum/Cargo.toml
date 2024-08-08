@@ -3,5 +3,8 @@ name = "plectrum"
 version.workspace = true
 edition.workspace = true
 
+[dependencies]
+plectrum-derive = { version = "0.1.0", path = "../plectrum-derive" }
+
 [dev-dependencies]
 tokio = { version = "1.33.0", features = ["full"] }
