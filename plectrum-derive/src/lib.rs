@@ -50,7 +50,7 @@ fn gen_method_value(varmap: &HashMap<String, String>) -> TokenStream {
         // @TODO: This seems like a workaround. Find out if there's a
         // more straightforward way to achieve this.
         let lhs: TokenStream = format!("Self::{key}").parse().unwrap();
-        let rhs = val.as_str();
+        let rhs = val;
         arms.extend(quote! {
             #lhs => #rhs,
         });
@@ -67,7 +67,7 @@ fn gen_method_value(varmap: &HashMap<String, String>) -> TokenStream {
 fn gen_fn_from_value(varmap: &HashMap<String, String>) -> TokenStream {
     let mut arms = quote! {};
     for (key, val) in varmap {
-        let lhs = val.as_str();
+        let lhs = val;
         // @TODO: This seems like a workaround. Find out if there's a
         // more straightforward way to achieve this.
         let rhs: TokenStream = format!("Self::{key}").parse().unwrap();
