@@ -86,6 +86,7 @@ fn gen_trait_impl(ast: DeriveInput) -> TokenStream {
     let method_value = gen_method_value(&varmap);
     let fn_from_value = gen_fn_from_value(&varmap);
     quote! {
+        #[automatically_derived]
         impl plectrum::Enum for #ident {
             #fn_values
 
