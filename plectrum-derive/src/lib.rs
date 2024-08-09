@@ -4,6 +4,8 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Data, DeriveInput};
 
+const VALIDATION_ERR: &'static str = "The 'Plectrum' derive macro only works for non data-bearing enums";
+
 fn enum_variants(data: &Data) -> HashMap<String, String> {
     let mut m = HashMap::new();
     match data {
@@ -12,9 +14,13 @@ fn enum_variants(data: &Data) -> HashMap<String, String> {
                 let key = format!("{}", v.ident);
                 let value = key.clone();
                 m.insert(key, value);
+                match v.fields {
+                    syn::Fields::Unit => { },
+                    _ => panic!("{VALIDATION_ERR}"),
+                }
             }
         }
-        _ => {}
+        _ => panic!("{VALIDATION_ERR}")
     }
     m
 }
