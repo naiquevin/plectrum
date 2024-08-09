@@ -79,14 +79,13 @@ fn gen_fn_from_value(varmap: &HashMap<String, String>) -> TokenStream {
     }
 }
 
-#[proc_macro_derive(Plectrum)]
-pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let DeriveInput { ident, data, .. } = parse_macro_input!(input);
+fn gen_trait_impl(ast: DeriveInput) -> TokenStream {
+    let DeriveInput { ident, data, .. } = ast;
     let varmap = enum_variants(&data);
     let fn_values = gen_fn_values(&varmap);
     let method_value = gen_method_value(&varmap);
     let fn_from_value = gen_fn_from_value(&varmap);
-    let output = quote! {
+    quote! {
         impl plectrum::Enum for #ident {
             #fn_values
 
@@ -94,6 +93,11 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
             #fn_from_value
         }
-    };
-    output.into()
+    }
+}
+
+#[proc_macro_derive(Plectrum)]
+pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let ast = parse_macro_input!(input);
+    gen_trait_impl(ast).into()
 }
