@@ -16,7 +16,7 @@ fn enum_variants(data: &Data, transform: Option<&Transform>) -> HashMap<String, 
     match data {
         Data::Enum(e) => {
             for v in e.variants.iter() {
-                let key = format!("{}", v.ident);
+                let key = v.ident.to_string();
                 let value = transform.map_or(key.clone(), |t| t.convert(&key));
                 m.insert(key, value);
                 match v.fields {
