@@ -28,13 +28,13 @@ pub struct Mapping<E> {
 impl<E: Enum> Mapping<E> {
     pub async fn load<S: DataSource>(source: &S) -> Result<Self, Error> {
         let data = source.load().await?;
-        let label_values = E::values();
+        let enum_values = E::values();
         let mut inner: HashMap<i32, String> = HashMap::new();
         for (key, value) in &data {
             inner.insert(*key, value.to_owned());
         }
         let data_values: HashSet<&str> = data.values().map(|v| v.as_str()).collect();
-        if label_values.difference(&data_values).count() > 0 {
+        if enum_values.difference(&data_values).count() > 0 {
             return Err(Error::NotFoundInDb);
         }
         Ok(Self {
@@ -115,11 +115,11 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_kvmap() {
+    async fn test_mapping_happy_path() {
         let model = StateModel {};
-        let kvmap = Mapping::load(&model).await.unwrap();
-        assert_eq!(State::Stopped, kvmap.by_id(1).unwrap());
-        assert_eq!(State::Running, kvmap.by_value("running").unwrap());
-        assert_eq!(3, kvmap.get_id(&State::Stopping).unwrap());
+        let mapping = Mapping::load(&model).await.unwrap();
+        assert_eq!(State::Stopped, mapping.by_id(1).unwrap());
+        assert_eq!(State::Running, mapping.by_value("running").unwrap());
+        assert_eq!(3, mapping.get_id(&State::Stopping).unwrap());
     }
 }
