@@ -52,8 +52,10 @@ fn gen_fn_values(varmap: &HashMap<String, String>) -> TokenStream {
 fn gen_method_value(varmap: &HashMap<String, String>) -> TokenStream {
     let mut arms = quote! {};
     for (key, val) in varmap {
-        // @TODO: This seems like a workaround. Find out if there's a
-        // more straightforward way to achieve this.
+        // @NOTE: Use of `unwrap` seems acceptable here. The error
+        // type is `proc_macro2::LexError` but since we're
+        // constructing the String using an enum variant token, we can
+        // be fairly sure that it will be ok.
         let lhs: TokenStream = format!("Self::{key}").parse().unwrap();
         let rhs = val;
         arms.extend(quote! {
@@ -73,8 +75,10 @@ fn gen_fn_from_value(varmap: &HashMap<String, String>) -> TokenStream {
     let mut arms = quote! {};
     for (key, val) in varmap {
         let lhs = val;
-        // @TODO: This seems like a workaround. Find out if there's a
-        // more straightforward way to achieve this.
+        // @NOTE: Use of `unwrap` seems acceptable here. The error
+        // type is `proc_macro2::LexError` but since we're
+        // constructing the String using an enum variant token, we can
+        // be fairly sure that it will be ok.
         let rhs: TokenStream = format!("Self::{key}").parse().unwrap();
         arms.extend(quote! {
             #lhs => #rhs,
