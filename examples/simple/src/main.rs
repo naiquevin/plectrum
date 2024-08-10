@@ -2,10 +2,12 @@ use plectrum::Enum;
 use plectrum_derive::Plectrum;
 
 #[derive(Debug, Plectrum)]
+#[plectrum(rename_all = "snake_case")]
 enum Color {
     Red,
     Green,
     Yellow,
+    DarkBlue,
 }
 
 fn main() {
@@ -26,13 +28,14 @@ mod tests {
 
     #[test]
     fn test_plectrum_macro() {
-        let red = "Red";
-        let green = "Green";
-        let yellow = "Yellow";
+        let red = "red";
+        let green = "green";
+        let yellow = "yellow";
+        let darkblue = "dark_blue";
 
         // Test for the `values` fn
         assert_eq!(
-            HashSet::from_iter(vec![red, green, yellow]),
+            HashSet::from_iter(vec![red, green, yellow, darkblue]),
             Color::values(),
         );
 
@@ -40,6 +43,7 @@ mod tests {
         assert_eq!(red, Color::Red.value());
         assert_eq!(green, Color::Green.value());
         assert_eq!(yellow, Color::Yellow.value());
+        assert_eq!(darkblue, Color::DarkBlue.value());
 
         // Tests for the `from_value` method
         match Color::from_value(red) {
@@ -54,6 +58,11 @@ mod tests {
 
         match Color::from_value(yellow) {
             Color::Yellow => assert!(true),
+            _ => assert!(false),
+        }
+
+        match Color::from_value(darkblue) {
+            Color::DarkBlue => assert!(true),
             _ => assert!(false),
         }
     }

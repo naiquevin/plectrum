@@ -1,18 +1,23 @@
 use std::collections::HashMap;
 
+use darling::FromDeriveInput;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Data, DeriveInput};
 
+use crate::transform::Transform;
+
+mod transform;
+
 const VALIDATION_ERR: &'static str = "The 'Plectrum' derive macro only works for non data-bearing enums";
 
-fn enum_variants(data: &Data) -> HashMap<String, String> {
+fn enum_variants(data: &Data, transform: Option<&Transform>) -> HashMap<String, String> {
     let mut m = HashMap::new();
     match data {
         Data::Enum(e) => {
             for v in e.variants.iter() {
                 let key = format!("{}", v.ident);
-                let value = key.clone();
+                let value = transform.map_or(key.clone(), |t| t.convert(&key));
                 m.insert(key, value);
                 match v.fields {
                     syn::Fields::Unit => { },
@@ -85,9 +90,17 @@ fn gen_fn_from_value(varmap: &HashMap<String, String>) -> TokenStream {
     }
 }
 
+#[derive(FromDeriveInput)]
+#[darling(attributes(plectrum))]
+struct Opts {
+    rename_all: Option<String>
+}
+
 fn gen_trait_impl(ast: DeriveInput) -> TokenStream {
+    let opts = Opts::from_derive_input(&ast).expect("Wrong options");
     let DeriveInput { ident, data, .. } = ast;
-    let varmap = enum_variants(&data);
+    let transform = opts.rename_all.map(Transform::from);
+    let varmap = enum_variants(&data, transform.as_ref());
     let fn_values = gen_fn_values(&varmap);
     let method_value = gen_method_value(&varmap);
     let fn_from_value = gen_fn_from_value(&varmap);
@@ -103,7 +116,7 @@ fn gen_trait_impl(ast: DeriveInput) -> TokenStream {
     }
 }
 
-#[proc_macro_derive(Plectrum)]
+#[proc_macro_derive(Plectrum, attributes(plectrum))]
 pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let ast = parse_macro_input!(input);
     gen_trait_impl(ast).into()
