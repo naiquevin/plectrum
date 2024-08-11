@@ -8,6 +8,8 @@ pub enum Error {
     NotDefinedInCode,
     // If a value corresponding to an enum variant is not found in the db
     NotFoundInDb,
+    // Custom error when fetching data from the data source
+    DataSource(String),
     // @TODO: Can this be optionally supported behind a cargo feature?
     // Sql(sqlx::Error),
 }
