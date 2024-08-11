@@ -1,9 +1,12 @@
 use std::collections::{HashMap, HashSet};
 use std::marker::PhantomData;
 
+/// Error representing all the ways that `Mapping::load` can fail
 #[derive(Debug)]
 pub enum Error {
+    // If an enum variant is not defined for a value found in the db
     NotDefinedInCode,
+    // If a value corresponding to an enum variant is not found in the db
     NotFoundInDb,
     // @TODO: Can this be optionally supported behind a cargo feature?
     // Sql(sqlx::Error),
@@ -32,6 +35,9 @@ impl<E: Enum> Mapping<E> {
         let mut inner: HashMap<i32, String> = HashMap::new();
         for (key, value) in &data {
             inner.insert(*key, value.to_owned());
+            if !enum_values.contains(value.as_str()) {
+                return Err(Error::NotDefinedInCode)
+            }
         }
         let data_values: HashSet<&str> = data.values().map(|v| v.as_str()).collect();
         if enum_values.difference(&data_values).count() > 0 {
@@ -114,6 +120,30 @@ mod tests {
         }
     }
 
+    struct StateModelMissingValues;
+
+    impl DataSource for StateModelMissingValues {
+        async fn load(&self) -> Result<HashMap<i32, String>, Error> {
+            let mut m = HashMap::new();
+            m.insert(1, "stopped".to_owned());
+            m.insert(2, "running".to_owned());
+            Ok(m)
+        }
+    }
+
+    struct StateModelExtraValues;
+
+    impl DataSource for StateModelExtraValues {
+        async fn load(&self) -> Result<HashMap<i32, String>, Error> {
+            let mut m = HashMap::new();
+            m.insert(1, "stopped".to_owned());
+            m.insert(2, "running".to_owned());
+            m.insert(2, "stopping".to_owned());
+            m.insert(2, "waiting".to_owned());
+            Ok(m)
+        }
+    }
+
     #[tokio::test]
     async fn test_mapping_happy_path() {
         let model = StateModel {};
@@ -121,5 +151,20 @@ mod tests {
         assert_eq!(State::Stopped, mapping.by_id(1).unwrap());
         assert_eq!(State::Running, mapping.by_value("running").unwrap());
         assert_eq!(3, mapping.get_id(&State::Stopping).unwrap());
+    }
+
+    #[tokio::test]
+    async fn test_mapping_errors_when_loading() {
+        let model = StateModelMissingValues {};
+        match Mapping::<State>::load(&model).await {
+            Err(Error::NotFoundInDb) => assert!(true),
+            _ => assert!(false),
+        }
+
+        let model = StateModelExtraValues {};
+        match Mapping::<State>::load(&model).await {
+            Err(Error::NotDefinedInCode) => assert!(true),
+            _ => assert!(false),
+        }
     }
 }
