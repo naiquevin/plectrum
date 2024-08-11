@@ -21,20 +21,21 @@ pub trait Enum {
 }
 
 pub trait DataSource {
+    type Id: std::hash::Hash + Eq + Copy;
     fn load(&self)
-        -> impl std::future::Future<Output = Result<HashMap<i32, String>, Error>> + Send;
+        -> impl std::future::Future<Output = Result<HashMap<Self::Id, String>, Error>> + Send;
 }
 
-pub struct Mapping<E> {
-    inner: HashMap<i32, String>,
+pub struct Mapping<K, E> {
+    inner: HashMap<K, String>,
     _enum_type: PhantomData<E>,
 }
 
-impl<E: Enum> Mapping<E> {
-    pub async fn load<S: DataSource>(source: &S) -> Result<Self, Error> {
+impl<K: std::hash::Hash + Eq + Copy, E: Enum> Mapping<K, E> {
+    pub async fn load<S: DataSource<Id = K>>(source: &S) -> Result<Self, Error> {
         let data = source.load().await?;
         let enum_values = E::values();
-        let mut inner: HashMap<i32, String> = HashMap::new();
+        let mut inner: HashMap<K, String> = HashMap::new();
         for (key, value) in &data {
             inner.insert(*key, value.to_owned());
             if !enum_values.contains(value.as_str()) {
@@ -51,7 +52,7 @@ impl<E: Enum> Mapping<E> {
         })
     }
 
-    pub fn by_id(&self, id: i32) -> Option<E> {
+    pub fn by_id(&self, id: K) -> Option<E> {
         self.inner.get(&id).map(|s| E::from_value(s.as_str()))
     }
 
@@ -65,7 +66,7 @@ impl<E: Enum> Mapping<E> {
         res
     }
 
-    pub fn get_id(&self, label: &E) -> Option<i32> {
+    pub fn get_id(&self, label: &E) -> Option<K> {
         let mut res = None;
         for (k, v) in self.inner.iter() {
             if label.value() == v {
@@ -113,6 +114,7 @@ mod tests {
     struct StateModel;
 
     impl DataSource for StateModel {
+        type Id = i32;
         async fn load(&self) -> Result<HashMap<i32, String>, Error> {
             let mut m = HashMap::new();
             m.insert(1, "stopped".to_owned());
@@ -125,6 +127,7 @@ mod tests {
     struct StateModelMissingValues;
 
     impl DataSource for StateModelMissingValues {
+        type Id = i32;
         async fn load(&self) -> Result<HashMap<i32, String>, Error> {
             let mut m = HashMap::new();
             m.insert(1, "stopped".to_owned());
@@ -136,6 +139,7 @@ mod tests {
     struct StateModelExtraValues;
 
     impl DataSource for StateModelExtraValues {
+        type Id = i32;
         async fn load(&self) -> Result<HashMap<i32, String>, Error> {
             let mut m = HashMap::new();
             m.insert(1, "stopped".to_owned());
@@ -158,13 +162,13 @@ mod tests {
     #[tokio::test]
     async fn test_mapping_errors_when_loading() {
         let model = StateModelMissingValues {};
-        match Mapping::<State>::load(&model).await {
+        match Mapping::<_, State>::load(&model).await {
             Err(Error::NotFoundInDb) => assert!(true),
             _ => assert!(false),
         }
 
         let model = StateModelExtraValues {};
-        match Mapping::<State>::load(&model).await {
+        match Mapping::<_, State>::load(&model).await {
             Err(Error::NotDefinedInCode) => assert!(true),
             _ => assert!(false),
         }
