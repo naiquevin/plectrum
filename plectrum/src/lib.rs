@@ -22,8 +22,9 @@ pub trait Enum {
 
 pub trait DataSource {
     type Id: std::hash::Hash + Eq + Copy;
-    fn load(&self)
-        -> impl std::future::Future<Output = Result<HashMap<Self::Id, String>, Error>> + Send;
+    fn load(
+        &self,
+    ) -> impl std::future::Future<Output = Result<HashMap<Self::Id, String>, Error>> + Send;
 }
 
 pub struct Mapping<K, E> {
@@ -39,7 +40,7 @@ impl<K: std::hash::Hash + Eq + Copy, E: Enum> Mapping<K, E> {
         for (key, value) in &data {
             inner.insert(*key, value.to_owned());
             if !enum_values.contains(value.as_str()) {
-                return Err(Error::NotDefinedInCode)
+                return Err(Error::NotDefinedInCode);
             }
         }
         let data_values: HashSet<&str> = data.values().map(|v| v.as_str()).collect();

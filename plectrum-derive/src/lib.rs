@@ -9,7 +9,7 @@ use crate::transform::Transform;
 
 mod transform;
 
-const VALIDATION_ERR: &'static str = "The 'Plectrum' derive macro only works for non data-bearing enums";
+const VALIDATION_ERR: &str = "The 'Plectrum' derive macro only works for non data-bearing enums";
 
 fn enum_variants(data: &Data, transform: Option<&Transform>) -> HashMap<String, String> {
     let mut m = HashMap::new();
@@ -20,12 +20,12 @@ fn enum_variants(data: &Data, transform: Option<&Transform>) -> HashMap<String, 
                 let value = transform.map_or(key.clone(), |t| t.convert(&key));
                 m.insert(key, value);
                 match v.fields {
-                    syn::Fields::Unit => { },
+                    syn::Fields::Unit => {}
                     _ => panic!("{VALIDATION_ERR}"),
                 }
             }
         }
-        _ => panic!("{VALIDATION_ERR}")
+        _ => panic!("{VALIDATION_ERR}"),
     }
     m
 }
@@ -97,7 +97,7 @@ fn gen_fn_from_value(varmap: &HashMap<String, String>) -> TokenStream {
 #[derive(FromDeriveInput)]
 #[darling(attributes(plectrum))]
 struct Opts {
-    rename_all: Option<String>
+    rename_all: Option<String>,
 }
 
 fn gen_trait_impl(ast: DeriveInput) -> TokenStream {
