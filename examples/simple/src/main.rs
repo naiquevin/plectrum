@@ -1,4 +1,6 @@
-use plectrum::{Enum, Plectrum};
+use std::collections::HashMap;
+
+use plectrum::{self, Enum, Plectrum};
 
 #[derive(Debug, Plectrum)]
 #[plectrum(rename_all = "snake_case")]
@@ -9,11 +11,33 @@ enum Color {
     DarkBlue,
 }
 
-fn main() {
+pub struct ColorModel;
+
+impl plectrum::DataSource for ColorModel {
+    type Id = u8;
+
+    async fn load(&self) -> Result<HashMap<u8, String>, plectrum::Error> {
+        let mut m = HashMap::new();
+        m.insert(1, "red".to_owned());
+        m.insert(2, "green".to_owned());
+        m.insert(3, "yellow".to_owned());
+        m.insert(4, "dark_blue".to_owned());
+        Ok(m)
+    }
+}
+
+#[tokio::main]
+async fn main() {
     println!("Playground for testing the Plectrum macro");
-    println!("{:?}", Color::values());
-    println!("{}", Color::Red.value());
-    println!("{:?}", Color::from_value("Green"));
+    dbg!(Color::values());
+    dbg!(Color::Red.value());
+    dbg!(Color::from_value("green"));
+
+    let model = ColorModel;
+    let mapping = plectrum::Mapping::<u8, Color>::load(&model).await.unwrap();
+    dbg!(mapping.by_id(1));
+    dbg!(mapping.by_value("yellow"));
+    dbg!(mapping.get_id(&Color::DarkBlue));
 }
 
 #[cfg(test)]
