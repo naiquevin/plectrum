@@ -175,6 +175,9 @@ mod tests {
     }
 }
 
-// Re-export the `Plectrum` macro so that the users of the lib don't
-// need to add `plectrum_derive` as a dependency
+// Gated behind the 'derive' cargo feature, re-export the `Plectrum`
+// macro so that the users of the lib don't need to add
+// `plectrum_derive` as a dependency
+
+#[cfg(feature = "derive")]
 pub use plectrum_derive::Plectrum;

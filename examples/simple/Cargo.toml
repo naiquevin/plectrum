@@ -4,4 +4,4 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-plectrum = { version = "0.1.0", path = "../../plectrum" }
+plectrum = { version = "0.1.0", path = "../../plectrum", features = ["derive"] }
