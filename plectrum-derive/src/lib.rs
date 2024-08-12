@@ -5,13 +5,13 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Data, DeriveInput};
 
-use crate::transform::Transform;
+use crate::transform::CaseTransform;
 
 mod transform;
 
 const VALIDATION_ERR: &str = "The 'Plectrum' derive macro only works for non data-bearing enums";
 
-fn enum_variants(data: &Data, transform: Option<&Transform>) -> HashMap<String, String> {
+fn enum_variants(data: &Data, transform: Option<&CaseTransform>) -> HashMap<String, String> {
     let mut m = HashMap::new();
     match data {
         Data::Enum(e) => {
@@ -103,7 +103,7 @@ struct Opts {
 fn gen_trait_impl(ast: DeriveInput) -> TokenStream {
     let opts = Opts::from_derive_input(&ast).expect("Wrong options");
     let DeriveInput { ident, data, .. } = ast;
-    let transform = opts.rename_all.map(Transform::from);
+    let transform = opts.rename_all.map(CaseTransform::from);
     let varmap = enum_variants(&data, transform.as_ref());
     let fn_values = gen_fn_values(&varmap);
     let method_value = gen_method_value(&varmap);
