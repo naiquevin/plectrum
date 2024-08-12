@@ -1,5 +1,4 @@
-use plectrum::Enum;
-use plectrum_derive::Plectrum;
+use plectrum::{Enum, Plectrum};
 
 #[derive(Debug, Plectrum)]
 #[plectrum(rename_all = "snake_case")]

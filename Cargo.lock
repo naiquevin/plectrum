@@ -283,7 +283,6 @@ name = "simple"
 version = "0.1.0"
 dependencies = [
  "plectrum",
- "plectrum-derive",
 ]
 
 [[package]]

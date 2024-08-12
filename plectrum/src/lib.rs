@@ -174,3 +174,7 @@ mod tests {
         }
     }
 }
+
+// Re-export the `Plectrum` macro so that the users of the lib don't
+// need to add `plectrum_derive` as a dependency
+pub use plectrum_derive::Plectrum;
