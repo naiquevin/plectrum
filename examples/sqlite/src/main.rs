@@ -37,9 +37,7 @@ impl<'a> plectrum::DataSource for ItemStateModel<'a> {
         let rows = sqlx::query_as::<_, ItemStateRow>(q)
             .fetch_all(self.pool)
             .await
-            .map_err(|e| {
-                plectrum::Error::DataSource(e.to_string())
-            })?;
+            .map_err(plectrum::Error::Sqlx)?;
         let mut res = HashMap::new();
         for row in rows {
             res.insert(row.id, row.label);
@@ -61,6 +59,9 @@ async fn main() {
             dbg!(mapping.by_id(1));
             dbg!(mapping.by_value("in_progress"));
             dbg!(mapping.get_id(&ItemState::Parked));
+        }
+        Err(plectrum::Error::Sqlx(e)) => {
+            panic!("Error loading mapping from the db: {e:?}");
         }
         Err(e) => {
             panic!("Failed to initialize mapping: {e:?}");
