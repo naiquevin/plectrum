@@ -5,9 +5,11 @@ edition.workspace = true
 
 [dependencies]
 plectrum-derive = { version = "0.1.0", path = "../plectrum-derive", optional = true }
+sqlx = { version = "0.8.0", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1.33.0", features = ["full"] }
 
 [features]
 derive = ["dep:plectrum-derive"]
+sqlx = ["dep:sqlx"]

@@ -891,6 +891,7 @@ name = "plectrum"
 version = "0.1.0"
 dependencies = [
  "plectrum-derive",
+ "sqlx",
  "tokio",
 ]
 

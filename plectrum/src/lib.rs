@@ -10,8 +10,9 @@ pub enum Error {
     NotFoundInDb,
     // Custom error when fetching data from the data source
     DataSource(String),
-    // @TODO: Can this be optionally supported behind a cargo feature?
-    // Sql(sqlx::Error),
+
+    #[cfg(feature = "sqlx")]
+    Sqlx(sqlx::Error),
 }
 
 pub trait Enum {
