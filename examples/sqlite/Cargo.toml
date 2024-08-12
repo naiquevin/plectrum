@@ -1,0 +1,9 @@
+[package]
+name = "sqlite"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+plectrum = { version = "0.1.0", path = "../../plectrum", features = ["derive"] }
+sqlx = { version = "0.8.0", features = ["runtime-tokio-native-tls", "sqlite"] }
+tokio = { version = "1.39.2", features = ["macros", "rt", "rt-multi-thread"] }
