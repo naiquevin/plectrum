@@ -2,6 +2,12 @@
 name = "plectrum-derive"
 version.workspace = true
 edition.workspace = true
+license = "MIT"
+description = "Derive macro for the plectrum crate"
+readme = "README.md"
+repository = "https://github.com/naiquevin/plectrum"
+keywords = ["derive", "macro"]
+categories = []
 
 [dependencies]
 convert_case = "0.6.0"

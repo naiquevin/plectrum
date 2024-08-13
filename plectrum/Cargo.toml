@@ -2,6 +2,12 @@
 name = "plectrum"
 version.workspace = true
 edition.workspace = true
+license = "MIT"
+description = "An easy way to represent lookup tables in a db as rust enums"
+readme = "../README.md"
+repository = "https://github.com/naiquevin/plectrum"
+keywords = ["lookup-table", "enum"]
+categories = ["rust-patterns"]
 
 [dependencies]
 plectrum-derive = { version = "0.1.0", path = "../plectrum-derive", optional = true }
