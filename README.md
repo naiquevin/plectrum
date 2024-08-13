@@ -40,9 +40,9 @@ enum ItemState {
 }
 ```
 
-This will allow us to use the `Mapping` abstraction provided by the
-crate to easily convert an instance of the enum to the corresponding
-`id` or `value` (label in this case) and vice versa:
+This will allow us to use the `plectrum::Mapping` abstraction to
+easily convert an instance of the enum to the corresponding `id` or
+`value` (label in this case) and vice versa:
 
 ``` rust
 mapping.by_id(1)                     // Some(ItemState::Todo)
@@ -56,6 +56,27 @@ db[^2]. This is done by implementing the `plectrum::DataSource` trait
 for a struct and then use that struct instance to initialize
 `plectrum::Mapping`. Refer to the complete implementation of this
 example [here](examples/sqlite).
+
+## Motivation
+
+While database drivers usually provide ways to map db types to rust
+types, e.g. the
+[sqlx::FromRow](https://docs.rs/sqlx/latest/sqlx/trait.FromRow.html)
+trait in [sqlx](https://github.com/launchbadge/sqlx), this library
+caters to a different use case. Entries in lookup tables are typically
+_static_. And any insertions/deletions to the tables are performed by
+developers and usually accompanied by significant changes in code.
+
+So it makes sense to cache the lookup table entries in memory at the
+time of process initialization and map them to an enum type. At this
+time, `plectrum` also performs some checks to ensure that there are no
+inconsistencies between the entries in the db and the enum
+variants. Refer to the [Inconsistencies between enum and lookup
+table](#inconsistencies-between-enum-and-lookup-table) section below.
+
+In rest of the code, you can simply use the enum everywhere and
+convert between enum <-> id/value fields of the lookup table when
+required.
 
 ## Installation
 
@@ -135,12 +156,12 @@ much better than errors at run time.
 
 # Examples
 
-1. [simple](examples/simple): Simple example to understand the
+1. [simple](examples/simple): A simple example to understand the
    motivation behind this crate. It uses hard coded data instead of db
-   based lookup table.
+   based lookup table in order to focus on library usage
 
-2. [sqlite](examples/sqlite): Using `plectrum` with an sqlite database
-   using the `sqlx`
+2. [sqlite](examples/sqlite): This example shows how `plectrum` can be
+   used `sqlx`
 
 # License
 
