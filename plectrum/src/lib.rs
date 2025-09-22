@@ -2,17 +2,18 @@ use std::collections::{HashMap, HashSet};
 use std::marker::PhantomData;
 
 /// Error representing all the ways that `Mapping::load` can fail
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    // If an enum variant is not defined for a value found in the db
+    #[error("An enum variant is not defined for a value found in the db")]
     NotDefinedInCode,
-    // If a value corresponding to an enum variant is not found in the db
+    #[error("A value corresponding to an enum variant is not found in the db")]
     NotFoundInDb,
-    // Custom error when fetching data from the data source
+    #[error("Error when loading data from the data source: {0}")]
     DataSource(String),
 
     #[cfg(feature = "sqlx")]
-    Sqlx(sqlx::Error),
+    #[error("Sqlx error: {0}")]
+    Sqlx(#[from] sqlx::Error),
 }
 
 pub trait Enum {
