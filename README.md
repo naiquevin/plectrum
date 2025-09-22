@@ -47,7 +47,9 @@ easily convert an instance of the enum to the corresponding `id` or
 ``` rust
 mapping.by_id(1)                     // Some(ItemState::Todo)
 mapping.by_value("in_progress")      // Some(ItemState::InProgress)
-mapping.get_id(&ItemState::Parked)   // Some(4)
+
+ItemState::Parked.id(&mapping)       // Some(4); New in verion 0.2.0
+mapping.get_id(&ItemState::Parked)   // Some(4); Prior to version 0.2.0
 ```
 
 To keep this example concise, I've glossed over one part here, which
@@ -95,14 +97,14 @@ cargo add plectrum --features derive,sqlx
 ```
 
 This feature provides the `plectrum::Error::Sqlx` error variant that
-wraps over an `sqlx::Error`. Refer to the [sqlite
-example](examples/sqlite) to see the usage.
+wraps over an `sqlx::Error`. Refer to the [sqlite](examples/sqlite)
+and [csvfile](examples/csvfile) examples to see the usage.
 
 ## Case conversions
 
 The `Plectrum` proc macro supports a `rename_all` attribute for
 specifying any case conversions while mapping the enum variant names
-in `UpperCamel` case (as per rust conventions) with the values in the
+in `UpperCamelCase` (as per rust conventions) with the values in the
 lookup table.
 
 Following case conversions are supported:
@@ -179,5 +181,3 @@ MIT (See [LICENSE](LICENSE)).
 [^2]: Note that this crate *DOES NOT* provide an ORM-like
     functionality, so it's upto the user to write a query to fetch
     lookup table entries from the db.
-
-

@@ -11,7 +11,7 @@ categories = ["rust-patterns"]
 
 [dependencies]
 bimap = "0.6.3"
-plectrum-derive = { version = "0.1.0", path = "../plectrum-derive", optional = true }
+plectrum-derive = { version = "0.2.0", path = "../plectrum-derive", optional = true }
 sqlx = { version = "0.8.6", optional = true }
 thiserror = "2.0.16"
 

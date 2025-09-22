@@ -4,6 +4,6 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-plectrum = { version = "0.1.0", path = "../../plectrum", features = ["derive", "sqlx"] }
+plectrum = { version = "0.2.0", path = "../../plectrum", features = ["derive", "sqlx"] }
 sqlx = { version = "0.8.6", features = ["runtime-tokio-native-tls", "sqlite"] }
 tokio = { version = "1.47.1", features = ["macros", "rt", "rt-multi-thread"] }
