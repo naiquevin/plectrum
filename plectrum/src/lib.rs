@@ -9,7 +9,7 @@ pub enum Error {
     #[error("A value corresponding to an enum variant is not found in the db")]
     NotFoundInDb,
     #[error("Error when loading data from the data source: {0}")]
-    DataSource(String),
+    DataSource(#[source] Box<dyn std::error::Error + Send + Sync>),
 
     #[cfg(feature = "sqlx")]
     #[error("Sqlx error: {0}")]
