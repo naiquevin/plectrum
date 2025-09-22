@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use std::fs::File;
 use std::collections::HashMap;
+use std::fs::File;
+use std::path::PathBuf;
 
 use plectrum::{Enum, Plectrum};
 
@@ -18,15 +18,15 @@ impl plectrum::DataSource for StatusModel {
     type Id = u8;
 
     async fn load(&self) -> Result<HashMap<u8, String>, plectrum::Error> {
-        let file = File::open(&self.0)
-            .map_err(|e| plectrum::Error::DataSource(Box::new(e)))?;
+        let file = File::open(&self.0).map_err(|e| plectrum::Error::DataSource(Box::new(e)))?;
         let mut rdr = csv::Reader::from_reader(file);
         let mut m = HashMap::new();
         for result in rdr.records() {
             // The iterator yields Result<StringRecord, Error>, so we check the
             // error here..
             let record = result.map_err(|e| plectrum::Error::DataSource(Box::new(e)))?;
-            let id = record.get(0)
+            let id = record
+                .get(0)
                 .unwrap()
                 .parse::<u8>()
                 .map_err(|e| plectrum::Error::DataSource(Box::new(e)))?;

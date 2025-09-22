@@ -25,7 +25,7 @@ impl From<String> for CaseTransform {
             "Train-Case" => Case::Train,
             "flatcase" => Case::Flat,
             "UPPERFLATCASE" => Case::UpperFlat,
-            _ => panic!("Invalid value for 'rename_all' transform: {}", s),
+            _ => panic!("Invalid value for 'rename_all' transform: {s}"),
         };
         Self { case }
     }

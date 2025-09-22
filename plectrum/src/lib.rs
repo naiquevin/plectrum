@@ -27,7 +27,7 @@ pub trait Enum {
     fn id<K, E>(&self, mapping: &Mapping<K, E>) -> Option<K>
     where
         K: std::hash::Hash + Eq + Copy,
-        E: Enum
+        E: Enum,
     {
         mapping.id_by_value(self.value())
     }
@@ -67,18 +67,23 @@ impl<K: std::hash::Hash + Eq + Copy, E: Enum> Mapping<K, E> {
     }
 
     pub fn by_id(&self, id: K) -> Option<E> {
-        self.inner.get_by_left(&id).map(|s| E::from_value(s.as_str()))
+        self.inner
+            .get_by_left(&id)
+            .map(|s| E::from_value(s.as_str()))
     }
 
     pub fn id_by_value(&self, value: &str) -> Option<K> {
-        self.inner.get_by_right(value).map(|k| *k)
+        self.inner.get_by_right(value).copied()
     }
 
     pub fn by_value(&self, value: &str) -> Option<E> {
         self.id_by_value(value).and_then(|k| self.by_id(k))
     }
 
-    #[deprecated(since="0.2.0", note="Please use the id method of the plectrum::Enum trait")]
+    #[deprecated(
+        since = "0.2.0",
+        note = "Please use the id method of the plectrum::Enum trait"
+    )]
     pub fn get_id(&self, label: &E) -> Option<K> {
         self.id_by_value(label.value())
     }
