@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "plectrum", "plectrum-derive", "examples/simple", "examples/sqlite" ]
+members = [ "plectrum", "plectrum-derive", "examples/simple", "examples/sqlite" , "examples/csvfile"]
 
 [workspace.package]
 version = "0.1.0"

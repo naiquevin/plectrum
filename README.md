@@ -163,6 +163,10 @@ much better than errors at run time.
 2. [sqlite](examples/sqlite): This example shows how `plectrum` can be
    used `sqlx`
 
+3. [csvfile](examples/csvfile): This examples demonstrates that data
+   can be loaded from any data source e.g. a csvfile and also shows
+   how to use the generic `plectrum::Error::DataSource` error variant
+
 # License
 
 MIT (See [LICENSE](LICENSE)).
