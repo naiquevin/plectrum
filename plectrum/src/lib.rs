@@ -1,6 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::marker::PhantomData;
 
+use bimap::BiHashMap;
+
 /// Error representing all the ways that `Mapping::load` can fail
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -39,7 +41,7 @@ pub trait DataSource {
 }
 
 pub struct Mapping<K, E> {
-    inner: HashMap<K, String>,
+    inner: BiHashMap<K, String>,
     _enum_type: PhantomData<E>,
 }
 
@@ -47,7 +49,7 @@ impl<K: std::hash::Hash + Eq + Copy, E: Enum> Mapping<K, E> {
     pub async fn load<S: DataSource<Id = K>>(source: &S) -> Result<Self, Error> {
         let data = source.load().await?;
         let enum_values = E::values();
-        let mut inner: HashMap<K, String> = HashMap::new();
+        let mut inner: BiHashMap<K, String> = BiHashMap::new();
         for (key, value) in &data {
             inner.insert(*key, value.to_owned());
             if !enum_values.contains(value.as_str()) {
@@ -65,17 +67,11 @@ impl<K: std::hash::Hash + Eq + Copy, E: Enum> Mapping<K, E> {
     }
 
     pub fn by_id(&self, id: K) -> Option<E> {
-        self.inner.get(&id).map(|s| E::from_value(s.as_str()))
+        self.inner.get_by_left(&id).map(|s| E::from_value(s.as_str()))
     }
 
     pub fn id_by_value(&self, value: &str) -> Option<K> {
-        self.inner.iter().find_map(|(k, v)| {
-            if v == value {
-                Some(*k)
-            } else {
-                None
-            }
-        })
+        self.inner.get_by_right(value).map(|k| *k)
     }
 
     pub fn by_value(&self, value: &str) -> Option<E> {
