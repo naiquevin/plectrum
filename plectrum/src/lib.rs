@@ -59,23 +59,23 @@ impl<K: std::hash::Hash + Eq + Copy, E: Enum> Mapping<K, E> {
     }
 
     pub fn by_value(&self, value: &str) -> Option<E> {
-        let mut res = None;
-        for (k, v) in self.inner.iter() {
+        self.inner.iter().find_map(|(k, v)| {
             if v == value {
-                res = self.by_id(*k)
+                self.by_id(*k)
+            } else {
+                None
             }
-        }
-        res
+        })
     }
 
     pub fn get_id(&self, label: &E) -> Option<K> {
-        let mut res = None;
-        for (k, v) in self.inner.iter() {
-            if label.value() == v {
-                res = Some(*k)
+        self.inner.iter().find_map(|(k, v)| {
+            if v == label.value() {
+                Some(*k)
+            } else {
+                None
             }
-        }
-        res
+        })
     }
 }
 
@@ -156,9 +156,13 @@ mod tests {
     async fn test_mapping_happy_path() {
         let model = StateModel {};
         let mapping = Mapping::load(&model).await.unwrap();
-        assert_eq!(State::Stopped, mapping.by_id(1).unwrap());
-        assert_eq!(State::Running, mapping.by_value("running").unwrap());
-        assert_eq!(3, mapping.get_id(&State::Stopping).unwrap());
+        assert_eq!(Some(State::Stopped), mapping.by_id(1));
+        assert_eq!(None, mapping.by_id(4));
+
+        assert_eq!(Some(State::Running), mapping.by_value("running"));
+        assert_eq!(None, mapping.by_value("unknown"));
+
+        assert_eq!(Some(3), mapping.get_id(&State::Stopping));
     }
 
     #[tokio::test]
