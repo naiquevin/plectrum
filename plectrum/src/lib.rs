@@ -20,6 +20,15 @@ pub trait Enum {
     fn value(&self) -> &str;
     fn from_value(s: &str) -> Self;
     fn values() -> HashSet<&'static str>;
+
+    /// Default trait method to get id given a mapping
+    fn id<K, E>(&self, mapping: &Mapping<K, E>) -> Option<K>
+    where
+        K: std::hash::Hash + Eq + Copy,
+        E: Enum
+    {
+        mapping.id_by_value(self.value())
+    }
 }
 
 pub trait DataSource {
@@ -59,24 +68,23 @@ impl<K: std::hash::Hash + Eq + Copy, E: Enum> Mapping<K, E> {
         self.inner.get(&id).map(|s| E::from_value(s.as_str()))
     }
 
-    pub fn by_value(&self, value: &str) -> Option<E> {
+    pub fn id_by_value(&self, value: &str) -> Option<K> {
         self.inner.iter().find_map(|(k, v)| {
             if v == value {
-                self.by_id(*k)
+                Some(*k)
             } else {
                 None
             }
         })
     }
 
+    pub fn by_value(&self, value: &str) -> Option<E> {
+        self.id_by_value(value).and_then(|k| self.by_id(k))
+    }
+
+    #[deprecated(since="0.2.0", note="Please use the id method of the plectrum::Enum trait")]
     pub fn get_id(&self, label: &E) -> Option<K> {
-        self.inner.iter().find_map(|(k, v)| {
-            if v == label.value() {
-                Some(*k)
-            } else {
-                None
-            }
-        })
+        self.id_by_value(label.value())
     }
 }
 
@@ -153,6 +161,7 @@ mod tests {
         }
     }
 
+    #[allow(deprecated)]
     #[tokio::test]
     async fn test_mapping_happy_path() {
         let model = StateModel {};
@@ -163,7 +172,9 @@ mod tests {
         assert_eq!(Some(State::Running), mapping.by_value("running"));
         assert_eq!(None, mapping.by_value("unknown"));
 
+        // Deprecated but still works
         assert_eq!(Some(3), mapping.get_id(&State::Stopping));
+        assert_eq!(Some(3), State::Stopping.id(&mapping));
     }
 
     #[tokio::test]

@@ -26,6 +26,7 @@ impl plectrum::DataSource for ColorModel {
     }
 }
 
+#[allow(deprecated)]
 #[tokio::main]
 async fn main() {
     println!("Playground for testing the Plectrum macro");
@@ -37,7 +38,10 @@ async fn main() {
     let mapping = plectrum::Mapping::<u8, Color>::load(&model).await.unwrap();
     dbg!(mapping.by_id(1));
     dbg!(mapping.by_value("yellow"));
+
+    // Deprecated but still works
     dbg!(mapping.get_id(&Color::DarkBlue));
+    dbg!(Color::DarkBlue.id(&mapping));
 }
 
 #[cfg(test)]

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::fs::File;
 use std::collections::HashMap;
 
-use plectrum::Plectrum;
+use plectrum::{Enum, Plectrum};
 
 #[derive(Debug, Plectrum)]
 #[plectrum(rename_all = "snake_case")]
@@ -37,6 +37,7 @@ impl plectrum::DataSource for StatusModel {
     }
 }
 
+#[allow(deprecated)]
 #[tokio::main]
 async fn main() {
     let filepath = std::env::var("PLECTRUM_CSVFILE").unwrap_or(String::from("statuses.csv"));
@@ -45,7 +46,10 @@ async fn main() {
         Ok(mapping) => {
             dbg!(mapping.by_id(1));
             dbg!(mapping.by_value("out_of_stock"));
+
+            // Deprecated but still works
             dbg!(mapping.get_id(&Status::Reserved));
+            dbg!(Status::Reserved.id(&mapping));
         }
         Err(e) => {
             panic!("Failed to initialize mapping: {e:?}");

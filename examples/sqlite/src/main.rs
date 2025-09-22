@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use plectrum::Plectrum;
+use plectrum::{Enum, Plectrum};
 use sqlx::SqlitePool;
 
 #[derive(Debug, Plectrum)]
@@ -46,6 +46,7 @@ impl<'a> plectrum::DataSource for ItemStateModel<'a> {
     }
 }
 
+#[allow(deprecated)]
 #[tokio::main]
 async fn main() {
     let dbpath = std::env::var("PLECTRUM_SQLITE_DB").unwrap_or(String::from("database/todos.db"));
@@ -58,7 +59,10 @@ async fn main() {
         Ok(mapping) => {
             dbg!(mapping.by_id(1));
             dbg!(mapping.by_value("in_progress"));
+
+            // Deprecated but still works
             dbg!(mapping.get_id(&ItemState::Parked));
+            dbg!(ItemState::Parked.id(&mapping));
         }
         Err(plectrum::Error::Sqlx(e)) => {
             panic!("Error loading mapping from the db: {e:?}");
